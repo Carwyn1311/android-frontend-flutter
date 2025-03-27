@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:the_cherry_pet_shop/config/config_url.dart';
 import '../models/postFacebook.dart';
 
 class SearchPostScreen extends StatefulWidget {
@@ -16,7 +17,7 @@ class SearchPostScreen extends StatefulWidget {
 class _SearchPostScreenState extends State<SearchPostScreen> {
   List<postFacebook> posts = [];
   bool isLoading = true;
-  final String apiUrl = 'https://foundgreenpen14.conveyor.cloud/api/PostApi'; // URL API của bạn
+  final String apiUrl = '${Config_URL.baseUrl}/PostApi'; // URL API của bạn
 
   @override
   void initState() {

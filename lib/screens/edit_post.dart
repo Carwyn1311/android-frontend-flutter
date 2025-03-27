@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:haphuocloc_3489_tuan7/models/postFacebook.dart';
+import 'package:the_cherry_pet_shop/models/postFacebook.dart';
+
 
 class EditPostScreen extends StatefulWidget {
   final postFacebook post; // Nhận bài đăng cần chỉnh sửa

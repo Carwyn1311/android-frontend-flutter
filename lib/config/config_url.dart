@@ -7,7 +7,7 @@ class Config_URL {
     if (url == null) {
       print("BASE_URL is not set in the .env file. Using default URL.");
       //đường dẫn API nếu không đọc được URL trong file .env
-      return "https://longashgrape36.conveyor.cloud/api/";
+      return "https://greatmintwave90.conveyor.cloud/api/";
     }
     return url;
   }

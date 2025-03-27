@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:haphuocloc_3489_tuan7/utils/auth.dart';
+import 'package:the_cherry_pet_shop/utils/auth.dart';
+import 'login_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -12,23 +13,25 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _initialsController = TextEditingController();
-  final TextEditingController _roleController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _phoneNumberController = TextEditingController();
+  final TextEditingController _fullNameController = TextEditingController();
 
   bool _isLoading = false;
   bool _obscurePassword = true;
 
   Future<void> _handleRegister() async {
-    // Kiểm tra các trường nhập liệu
     if (_usernameController.text.isEmpty ||
         _emailController.text.isEmpty ||
         _passwordController.text.isEmpty ||
-        _initialsController.text.isEmpty ||
-        _roleController.text.isEmpty) {
+        _addressController.text.isEmpty ||
+        _phoneNumberController.text.isEmpty ||
+        _fullNameController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Vui lòng nhập đầy đủ thông tin'),
           backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
         ),
       );
       return;
@@ -41,28 +44,30 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       username: _usernameController.text,
       email: _emailController.text,
       password: _passwordController.text,
-      initials: _initialsController.text,
-      role: _roleController.text,
+      initials: 'initials', // Hoặc bạn có thể lấy từ một trường nhập liệu
+      role: 'user', // Bạn có thể chỉnh sửa giá trị role theo nhu cầu
+      address: _addressController.text,
+      phoneNumber: _phoneNumberController.text,
+      fullName: _fullNameController.text,
     );
 
     setState(() => _isLoading = false);
 
-    // Xử lý kết quả trả về từ API
     if (result['success'] == true) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Đăng ký thành công!'),
           backgroundColor: Colors.green,
+          duration: Duration(seconds: 3),
         ),
       );
-      // Sau khi đăng ký thành công, quay lại trang đăng nhập
-      Navigator.pop(context);
+      Navigator.pop(context); // Quay lại màn hình trước
     } else {
-      String errorMessage = result['message'] ?? 'Đăng ký thất bại';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(errorMessage),
+          content: Text(result['message'] ?? 'Đăng ký thất bại'),
           backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
         ),
       );
     }
@@ -154,10 +159,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 ),
                 const SizedBox(height: 12),
                 TextField(
-                  controller: _initialsController,
+                  controller: _addressController,
                   keyboardType: TextInputType.text,
                   decoration: InputDecoration(
-                    hintText: 'Ký tự viết tắt',
+                    hintText: 'Địa chỉ',
                     filled: true,
                     fillColor: Colors.grey[100],
                     border: OutlineInputBorder(
@@ -172,10 +177,28 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 ),
                 const SizedBox(height: 12),
                 TextField(
-                  controller: _roleController,
+                  controller: _phoneNumberController,
+                  keyboardType: TextInputType.phone,
+                  decoration: InputDecoration(
+                    hintText: 'Số điện thoại',
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _fullNameController,
                   keyboardType: TextInputType.text,
                   decoration: InputDecoration(
-                    hintText: 'Vai trò (Admin/User)',
+                    hintText: 'Họ và tên',
                     filled: true,
                     fillColor: Colors.grey[100],
                     border: OutlineInputBorder(
@@ -219,20 +242,20 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text("Đã có tài khoản? "),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context); // Quay lại màn hình đăng nhập
-                      },
-                      child: const Text(
-                        'Đăng nhập',
-                        style: TextStyle(color: Colors.purple),
+                Center(
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.pop(context); // Quay lại màn hình đăng nhập
+                    },
+                    child: const Text(
+                      'Quay lại đăng nhập',
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ],
             ),

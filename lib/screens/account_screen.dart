@@ -1,5 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'edit_account_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:the_cherry_pet_shop/models/user_model.dart';
+import 'Auth/login_screen.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
@@ -9,83 +12,110 @@ class AccountScreen extends StatefulWidget {
 }
 
 class _AccountScreenState extends State<AccountScreen> {
-  // Dữ liệu người dùng
-  String avatarUrl = 'https://i.redd.it/vgzby6zrlg8b1.jpg';
-  String name = 'Hà Phước Lộc';
-  String email = 'haphuoclocbaclieu@gmail.com';
-  String phone = '0948447004';
-  String address = 'Tp.Thủ Đức, Việt Nam';
+  bool isLoggedIn = false; // Trạng thái đăng nhập
+  UserModel? userModel; // Model lưu thông tin người dùng
+  String? _username; // Username từ SharedPreferences
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus();
+    _loadUsername();
+  }
+
+  // Kiểm tra trạng thái đăng nhập
+  void _checkLoginStatus() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? userData = prefs.getString('user_info');
+
+    if (userData != null) {
+      setState(() {
+        isLoggedIn = true;
+        userModel = UserModel.fromJson(json.decode(userData));
+      });
+    } else {
+      setState(() {
+        isLoggedIn = false;
+        userModel = null; // Reset thông tin user về null
+      });
+    }
+  }
+
+  // Lấy username từ SharedPreferences
+  Future<void> _loadUsername() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _username = prefs.getString('username') ?? 'Unknown';
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(height: 20),
-            CircleAvatar(
-              radius: 50,
-              backgroundImage: NetworkImage(avatarUrl), // Hiển thị ảnh đại diện
-            ),
-            const SizedBox(height: 10),
-            Text(
-              name, // Hiển thị tên người dùng
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 20),
-            ListTile(
-              leading: const Icon(Icons.email, color: Colors.blueAccent),
-              title: const Text('Email'),
-              subtitle: Text(email), // Hiển thị email
-            ),
-            ListTile(
-              leading: const Icon(Icons.phone, color: Colors.blueAccent),
-              title: const Text('Số điện thoại'),
-              subtitle: Text(phone), // Hiển thị số điện thoại
-            ),
-            ListTile(
-              leading: const Icon(Icons.location_on, color: Colors.blueAccent),
-              title: const Text('Địa chỉ'),
-              subtitle: Text(address), // Hiển thị địa chỉ
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton.icon(
-              onPressed: () async {
-                // Chuyển đến màn hình chỉnh sửa và nhận kết quả
-                final result = await Navigator.push(
+    if (!isLoggedIn) {
+      userModel = null;
+      // Chưa đăng nhập
+      return Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.all(40.0), // Thêm 40px padding toàn bộ
+          child: Center(
+            child: ElevatedButton(
+              onPressed: () {
+                // Chuyển đến màn hình đăng nhập
+                Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => EditAccountScreen(
-                      avatarUrl: avatarUrl,
-                      name: name,
-                      email: email,
-                      phone: phone,
-                      address: address,
-                    ),
-                  ),
-                );
-
-                if (result != null) {
-                  // Cập nhật dữ liệu nếu có thay đổi
-                  setState(() {
-                    avatarUrl = result['avatarUrl'];
-                    name = result['name'];
-                    email = result['email'];
-                    phone = result['phone'];
-                    address = result['address'];
-                  });
-                }
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                ).then((_) {
+                  _checkLoginStatus(); // Kiểm tra lại trạng thái sau khi đăng nhập
+                  _loadUsername(); // Lấy lại username
+                });
               },
-              icon: const Icon(Icons.edit),
-              label: const Text('Chỉnh sửa thông tin'),
+              child: const Text('Đăng nhập'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blueAccent,
                 padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
               ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Đã đăng nhập và có dữ liệu user
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(40.0), // Thêm 40px padding toàn bộ
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Khung màu xanh thay cho hình đại diện
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                color: Colors.blue,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              alignment: Alignment.center,
+              child: const Icon(
+                Icons.person,
+                color: Colors.white,
+                size: 50,
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Hiển thị thông tin username từ SharedPreferences
+            ListTile(
+              leading: const Icon(Icons.account_circle, color: Colors.blueAccent),
+              title: const Text('Tên tài khoản'),
+              subtitle: Text(_username ?? 'Không có thông tin'),
+            ),
+
+            // Hiển thị thông tin role từ UserModel
+            ListTile(
+              leading: const Icon(Icons.admin_panel_settings, color: Colors.blueAccent),
+              title: const Text('Vai trò'),
+              subtitle: Text(userModel?.role ?? 'Không xác định'),
             ),
           ],
         ),

@@ -1,4 +1,4 @@
-name: haphuocloc_3489_tuan7
+name: the_cherry_pet_shop
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
-# of the product and file versions while build-number is used as the build suffix.
+# of the pet and file versions while build-number is used as the build suffix.
 version: 1.0.0+1
 
 environment:
@@ -30,6 +30,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_map: ^5.0.0
+  latlong2: ^0.9.1
+  geolocator: ^10.0.1
+  flutter_map_marker_popup: ^5.2.0
+  permission_handler: ^10.4.3
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -43,6 +48,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   youtube_player_flutter: ^9.1.1
+  carousel_slider: ^5.0.0
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
@@ -94,4 +100,14 @@ flutter:
   assets:
     - assets/
     - .env
+    - assets/img_cat_dog_bed.jpg
+    - assets/img_cat_condo.jpg
+    - assets/img_dog_toy.jpg
+    - assets/img_dog_bowl.jpg
+    - assets/puppy_shop.jpg
+    - assets/img_dog_toy.jpg
+    - assets/san-pham-1648734362.png
+    - assets/dochoimeo.png
+    - assets/dochoicho.png
+    - assets/chuongcho.png
 

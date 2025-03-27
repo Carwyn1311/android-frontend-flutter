@@ -1,9 +1,12 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:haphuocloc_3489_tuan7/screens/video_screen.dart';
-import 'package:haphuocloc_3489_tuan7/screens/Auth/logout_screen.dart'; // Import LogoutScreen
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:the_cherry_pet_shop/models/user_model.dart';
+import 'package:the_cherry_pet_shop/screens/video_screen.dart';
+import 'package:the_cherry_pet_shop/screens/map_screen.dart'; // Import màn hình MapHere
 import 'home_screen.dart';
 import 'account_screen.dart';
-import 'market_screen.dart';
+import 'admin/admin_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -14,14 +17,60 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
+  bool isLoggedIn = false; // Trạng thái đăng nhập
+  bool isAdmin = false; // Trạng thái quyền Admin
+  UserModel? userModel; // Dữ liệu người dùng
 
-  // Simplified screens list without video assets
-  final List<Widget> _screens = [
-    const HomeScreen(),
-    const VideoListScreen(), // Using YouTube videos instead of local assets
-    const AccountScreen(),
-    const MarketScreen(),
-  ];
+  // Khởi tạo `_screens` mặc định với danh sách trống
+  late List<Widget> _screens = [Container()];
+
+  @override
+  void initState() {
+    super.initState();
+    _screens = [
+      HomeScreen(), // Removed const
+      VideoListScreen(), // Removed const
+      MapScreen(), // Removed const
+      AccountScreen(), // Removed const
+    ]; // Giá trị mặc định ban đầu
+    _checkUserRole(); // Kiểm tra vai trò người dùng
+  }
+
+  Future<void> _checkUserRole() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? userData = prefs.getString('user_info');
+
+    if (userData != null) {
+      setState(() {
+        isLoggedIn = true;
+        userModel = UserModel.fromJson(json.decode(userData));
+
+        // Kiểm tra vai trò của người dùng
+        if (userModel?.role == 'Admin') {
+          isAdmin = true;
+        } else {
+          isAdmin = false;
+        }
+      });
+    } else {
+      setState(() {
+        isLoggedIn = false;
+        isAdmin = false;
+      });
+    }
+
+    // Cấu hình danh sách màn hình dựa trên vai trò
+    setState(() {
+      _screens = [
+        HomeScreen(), // Home luôn hiển thị
+        VideoListScreen(),
+        MapScreen(),
+        if (isAdmin) AdminScreen(), // Chỉ hiển thị AdminScreen nếu là Admin
+        AccountScreen(), // Account luôn hiển thị
+      ];
+    });
+  }
+
 
   Color _getIconColor(int index) {
     return _currentIndex == index ? Colors.blueAccent : Colors.grey;
@@ -30,24 +79,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Facebook Fake'),
-        centerTitle: true,
-        backgroundColor: Colors.blueAccent,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              // Điều hướng đến màn hình Logout khi nhấn vào nút "Đăng xuất"
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const LogoutScreen()),
-              );
-            },
-          ),
-        ],
-      ),
-      body: IndexedStack(  // Using IndexedStack to preserve state
+      body: IndexedStack(
         index: _currentIndex,
         children: _screens,
       ),
@@ -64,10 +96,17 @@ class _MainScreenState extends State<MainScreen> {
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
           onTap: (index) {
+            if (index == 4 && !isAdmin) { // Index 3 là màn hình Admin
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Bạn không có quyền truy cập màn hình Admin!')),
+              );
+              return;
+            }
             setState(() {
               _currentIndex = index;
             });
           },
+
           items: [
             BottomNavigationBarItem(
               icon: Icon(Icons.home, color: _getIconColor(0)),
@@ -78,12 +117,17 @@ class _MainScreenState extends State<MainScreen> {
               label: 'Video',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.account_circle, color: _getIconColor(2)),
-              label: 'Account',
+              icon: Icon(Icons.map, color: _getIconColor(2)),
+              label: 'Map',
             ),
+            if (isAdmin) // Chỉ hiển thị Admin nếu là Admin
+              BottomNavigationBarItem(
+                icon: Icon(Icons.admin_panel_settings, color: _getIconColor(3)),
+                label: 'Admin',
+              ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_cart, color: _getIconColor(3)),
-              label: 'Market',
+              icon: Icon(Icons.account_circle, color: _getIconColor(4)),
+              label: 'Account',
             ),
           ],
           type: BottomNavigationBarType.fixed,

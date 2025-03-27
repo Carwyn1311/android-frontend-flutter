@@ -22,13 +22,15 @@ class Auth {
     return result; // returns a map with {success: bool, token: string?, role: string?, message: string?}
   }
 
-  // Đăng ký tài khoản mới
   static Future<Map<String, dynamic>> register({
     required String username,
     required String email,
     required String password,
     required String initials,
     required String role,
+    required String address,
+    required String phoneNumber,
+    required String fullName,
   }) async {
     // Tạo body để gửi lên API
     Map<String, dynamic> body = {
@@ -37,13 +39,15 @@ class Auth {
       "password": password,
       "initials": initials,
       "role": role,
+      "address": address,
+      "phoneNumber": phoneNumber,
+      "fullName": fullName,
     };
 
-    // Gọi API đăng ký thông qua ApiClient
     try {
+      // Gọi API đăng ký thông qua ApiClient
       var response = await _apiClient.post('Authenticate/register', body: body);
 
-      // Xử lý kết quả từ API
       if (response.statusCode == 200) {
         // Chuyển đổi body JSON từ API thành Map
         var result = jsonDecode(response.body);
@@ -51,14 +55,15 @@ class Auth {
       } else {
         return {
           'success': false,
-          'message': 'Đăng ký thất bại, vui lòng thử lại.'
+          'message': 'Đăng ký thất bại, vui lòng thử lại.',
         };
       }
     } catch (e) {
       return {
         'success': false,
-        'message': 'Lỗi kết nối: ${e.toString()}'
+        'message': 'Lỗi kết nối: ${e.toString()}',
       };
     }
   }
+
 }

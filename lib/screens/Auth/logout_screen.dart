@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Import SharedPreferences
+
+import '../../models/user_model.dart';
 import 'login_screen.dart'; // Import màn hình đăng nhập
 
 class LogoutScreen extends StatelessWidget {
@@ -8,15 +10,23 @@ class LogoutScreen extends StatelessWidget {
   // Hàm xử lý đăng xuất và xóa token
   Future<void> _logout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove('jwt_token'); // Xóa token khỏi SharedPreferences
 
-    // Điều hướng về màn hình đăng nhập sau khi xóa token
+    // Xóa toàn bộ trạng thái liên quan đến người dùng
+    await prefs.remove('jwt_token');
+    await prefs.remove('user_info');
+    await prefs.remove('userId'); // Xóa userId nếu được lưu
+
+    // Reset thông tin người dùng
+    UserModel.currentUser = null;
+
+    // Điều hướng về màn hình đăng nhập
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => const LoginScreen()),
-          (route) => false, // Xóa tất cả các màn hình trước đó khỏi ngăn xếp
+          (route) => false,
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -44,5 +54,4 @@ class LogoutScreen extends StatelessWidget {
       ),
     );
   }
-
 }
